@@ -30,7 +30,6 @@ const App: React.FC = () => {
 
   const lastLoadedUser = useRef<string | null>(null);
 
-  // 1. Initial Load: Load data once when user changes
   useEffect(() => {
     if (currentUser) {
       const data = storage.getUser(currentUser);
@@ -47,7 +46,7 @@ const App: React.FC = () => {
     }
   }, [currentUser]);
 
-  // helper function for explicit persistence
+  // Explicit persistence helper
   const persistAndSetTasks = (newTasks: Task[]) => {
     if (currentUser) {
       storage.updateTasks(currentUser, newTasks);
@@ -70,7 +69,7 @@ const App: React.FC = () => {
   const handleExport = () => {
     if (!currentUser) return;
     const data = {
-      version: "1.6",
+      version: "1.9",
       username: currentUser,
       tasks: tasks,
       exportedAt: new Date().toISOString()
@@ -86,6 +85,7 @@ const App: React.FC = () => {
 
   const handleImport = (file: File) => {
     if (!currentUser) return;
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -98,7 +98,7 @@ const App: React.FC = () => {
         else rawItems = Object.values(json).find(val => Array.isArray(val)) as any[] || [];
 
         if (rawItems.length === 0) {
-          setAlertConfig({ title: "Import Failed", message: "No valid tasks found." });
+          setAlertConfig({ title: "Import Failed", message: "No valid tasks found in this file." });
           return;
         }
 
@@ -111,18 +111,23 @@ const App: React.FC = () => {
 
         setConfirmConfig({
           title: "Import Data",
-          message: `Import ${normalized.length} tasks? This overwrites your current ${currentUser} board.`,
+          message: `Ready to import ${normalized.length} tasks? This will overwrite your current board.`,
           confirmLabel: "Overwrite & Import",
           onConfirm: () => {
-            // EXPLICIT SAVE: Direct to storage
+            // Explicitly persist before clearing state
             persistAndSetTasks(normalized);
             setConfirmConfig(null);
           }
         });
       } catch (err) {
-        setAlertConfig({ title: "Import Error", message: "Failed to parse file." });
+        setAlertConfig({ title: "Import Error", message: "Invalid file format. Please use a valid board export JSON." });
       }
     };
+
+    reader.onerror = () => {
+      setAlertConfig({ title: "System Error", message: "Failed to read the file from your computer." });
+    };
+
     reader.readAsText(file);
   };
 
