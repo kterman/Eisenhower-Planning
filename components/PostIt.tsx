@@ -11,14 +11,31 @@ interface PostItProps {
 
 const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove }) => {
   const [showMove, setShowMove] = React.useState(false);
+  const [isDragging, setIsDragging] = React.useState(false);
 
   const quadrants: QuadrantType[] = ['DO', 'DECIDE', 'DELEGATE', 'DELETE'];
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('taskId', task.id);
+    e.dataTransfer.effectAllowed = 'move';
+    // Small delay to let the browser create the ghost image before we change opacity
+    setTimeout(() => setIsDragging(true), 0);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div 
-      className="group relative bg-[#fff9c4] p-5 w-[160px] h-[160px] transform rotate-1 transition-all hover:rotate-0 hover:scale-110 post-it-shadow border-b-2 border-r-2 border-[#f0e68c] flex flex-col"
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      className={`group relative bg-[#fff9c4] p-5 w-[160px] h-[160px] transform rotate-1 transition-all post-it-shadow border-b-2 border-r-2 border-[#f0e68c] flex flex-col cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-40 scale-95' : 'hover:rotate-0 hover:scale-110'
+      }`}
     >
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden pointer-events-none">
         <p className="text-sm font-bold text-gray-800 leading-snug break-words">
           {task.subject}
         </p>
