@@ -6,7 +6,7 @@ import { QUADRANTS } from './constants';
 import Auth from './components/Auth';
 import Header from './components/Header';
 import PostIt from './components/PostIt';
-import { Plus, ShieldCheck, AlertCircle, HelpCircle } from 'lucide-react';
+import { Plus, AlertCircle, HelpCircle } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<string | null>(() => {
@@ -222,20 +222,20 @@ const App: React.FC = () => {
             : 'border-transparent shadow-sm'
         } ${q.bg}`}
       >
-        <div className={`px-5 py-3 flex items-center justify-between text-white ${q.color} ${isHovered ? 'brightness-110' : ''}`}>
+        <div className={`px-5 py-2.5 flex items-center justify-between text-white ${q.color} ${isHovered ? 'brightness-110' : ''}`}>
           <div>
-            <h3 className="font-black text-base uppercase tracking-widest">{q.title}</h3>
-            <p className="text-[10px] opacity-90 font-bold uppercase">{q.label}</p>
+            <h3 className="font-black text-sm uppercase tracking-widest">{q.title}</h3>
+            <p className="text-[9px] opacity-90 font-bold uppercase tracking-tight">{q.label}</p>
           </div>
           <button 
             onClick={() => setShowAddFor(qType)}
-            className="p-2 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-xl transition-all"
+            className="p-1.5 bg-white bg-opacity-20 hover:bg-opacity-40 rounded-lg transition-all"
           >
-            <Plus size={20} strokeWidth={3} />
+            <Plus size={18} strokeWidth={3} />
           </button>
         </div>
         
-        <div className="flex-1 p-6 overflow-y-auto custom-scrollbar bg-white/30 backdrop-blur-sm">
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar bg-white/30 backdrop-blur-sm">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-6 justify-items-center">
             {qTasks.map(task => (
               <PostIt 
@@ -247,8 +247,8 @@ const App: React.FC = () => {
             ))}
             {qTasks.length === 0 && !isHovered && (
               <div className="col-span-full py-12 flex flex-col items-center justify-center opacity-20 pointer-events-none">
-                 <div className="w-12 h-12 border-2 border-dashed border-current rounded-full mb-2 flex items-center justify-center">+</div>
-                 <p className="text-[10px] font-black uppercase tracking-[0.2em]">Drop or Add Task</p>
+                 <div className="w-12 h-12 border-2 border-dashed border-current rounded-full mb-2 flex items-center justify-center text-2xl font-bold">+</div>
+                 <p className="text-[10px] font-black uppercase tracking-[0.2em]">Add Task</p>
               </div>
             )}
           </div>
@@ -264,23 +264,11 @@ const App: React.FC = () => {
         onLogout={handleLogout} 
         onExport={handleExport}
         onImport={handleImport}
+        lastSaved={lastSaved}
       />
       
-      <main className="flex-1 flex flex-col px-6 py-6 overflow-hidden">
-        <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-                <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Workspace: {currentUser}</span>
-             </div>
-          </div>
-          <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black uppercase tracking-widest">
-            <ShieldCheck size={12} />
-            Auto-Sync Active: {lastSaved}
-          </div>
-        </div>
-
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-[repeat(4,minmax(300px,1fr))] md:grid-rows-2 gap-6 h-full">
+      <main className="flex-1 flex flex-col px-4 py-4 md:px-6 md:py-6 overflow-hidden">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-[repeat(4,minmax(300px,1fr))] md:grid-rows-2 gap-4 md:gap-6 h-full">
           {renderQuadrant('DO')}
           {renderQuadrant('DECIDE')}
           {renderQuadrant('DELEGATE')}
@@ -363,8 +351,8 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <footer className="px-6 py-3 text-center text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] bg-white border-t">
-        &copy; {new Date().getFullYear()} Eisenhower Board • Sandboxed Environment Ready
+      <footer className="px-6 py-2.5 text-center text-gray-400 text-[9px] font-black uppercase tracking-[0.3em] bg-white border-t">
+        &copy; {new Date().getFullYear()} Eisenhower Board • {currentUser} Workspace
       </footer>
 
       <style>{`
