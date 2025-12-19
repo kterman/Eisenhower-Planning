@@ -1,5 +1,5 @@
 {
-  "name": "Eisenhower Note-It Board",
+  "name": "Eisenhower Task Board",
   "description": "A prioritized task management board using the Eisenhower Matrix with a Post-it note aesthetic. Organize tasks by subject into Do, Decide, Delegate, and Delete quadrants.",
   "requestFramePermissions": []
 }
