@@ -5,8 +5,13 @@ const STORAGE_KEY = 'eisenhower_app_users';
 
 export const storage = {
   getUsers: (): Record<string, User> => {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : {};
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch (e) {
+      console.error("Failed to parse storage data", e);
+      return {};
+    }
   },
 
   saveUser: (user: User) => {
@@ -21,10 +26,15 @@ export const storage = {
   },
 
   updateTasks: (username: string, tasks: Task[]) => {
-    const user = storage.getUser(username);
-    if (user) {
-      user.tasks = tasks;
-      storage.saveUser(user);
-    }
+    const users = storage.getUsers();
+    // Directly update or create the user entry
+    users[username] = { username, tasks };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  },
+
+  importUserData: (username: string, tasks: Task[]) => {
+    const users = storage.getUsers();
+    users[username] = { username, tasks };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
   }
 };
