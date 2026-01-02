@@ -69,7 +69,7 @@ const App: React.FC = () => {
   const handleExport = () => {
     if (!currentUser) return;
     const data = {
-      version: "1.9",
+      version: "2.1",
       username: currentUser,
       tasks: tasks,
       exportedAt: new Date().toISOString()
@@ -114,7 +114,6 @@ const App: React.FC = () => {
           message: `Ready to import ${normalized.length} tasks? This will overwrite your current board.`,
           confirmLabel: "Overwrite & Import",
           onConfirm: () => {
-            // Explicitly persist before clearing state
             persistAndSetTasks(normalized);
             setConfirmConfig(null);
           }
@@ -149,6 +148,10 @@ const App: React.FC = () => {
     persistAndSetTasks(tasks.filter(t => t.id !== id));
   };
 
+  const editTask = (id: string, newSubject: string) => {
+    persistAndSetTasks(tasks.map(t => t.id === id ? { ...t, subject: newSubject } : t));
+  };
+
   const moveTask = (id: string, newQuadrant: QuadrantType) => {
     persistAndSetTasks(tasks.map(t => t.id === id ? { ...t, quadrant: newQuadrant } : t));
   };
@@ -172,35 +175,35 @@ const App: React.FC = () => {
           const taskId = e.dataTransfer.getData('taskId');
           if (taskId) moveTask(taskId, qType);
         }}
-        className={`flex flex-col h-full rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+        className={`flex flex-col h-full rounded-xl sm:rounded-2xl md:rounded-3xl overflow-hidden border transition-all duration-300 ${
           isHovered ? 'scale-[1.01] border-indigo-500 shadow-xl ring-4 ring-indigo-500/10' : 'border-transparent shadow-sm'
         } ${q.bg}`}
       >
-        <div className={`px-5 py-4 flex items-center justify-between text-white ${q.color} ${isHovered ? 'brightness-110' : ''}`}>
-          <div className="flex items-center gap-3 overflow-hidden">
-            <h3 className="font-black text-2xl uppercase tracking-tighter leading-none shrink-0 drop-shadow-sm">{q.title}</h3>
-            <div className="h-6 w-0.5 bg-white/30 shrink-0"></div>
-            <span className="text-sm md:text-base font-black uppercase tracking-widest leading-none whitespace-nowrap overflow-hidden text-ellipsis drop-shadow-sm">
+        <div className={`px-2.5 sm:px-4 md:px-3 lg:px-6 py-2 sm:py-3 md:py-2.5 lg:py-4 flex items-center justify-between text-white ${q.color} ${isHovered ? 'brightness-110' : ''}`}>
+          <div className="flex items-center gap-1.5 sm:gap-3 md:gap-2 lg:gap-4 overflow-hidden">
+            <h3 className="font-black text-base sm:text-xl md:text-lg lg:text-3xl uppercase tracking-tighter leading-none shrink-0 drop-shadow-sm">{q.title}</h3>
+            <div className="h-4 sm:h-6 md:h-5 lg:h-8 w-0.5 bg-white/30 shrink-0"></div>
+            <span className="text-[8px] sm:text-[10px] md:text-[9px] lg:text-base font-black uppercase tracking-widest leading-none whitespace-nowrap overflow-hidden text-ellipsis drop-shadow-sm opacity-90">
               {q.label}
             </span>
           </div>
           <button 
             onClick={() => setShowAddFor(qType)}
-            className="p-2 bg-white/20 hover:bg-white/40 rounded-xl transition-all shrink-0 shadow-lg active:scale-90"
+            className="p-1 sm:p-2 md:p-1.5 lg:p-2.5 bg-white/20 hover:bg-white/40 rounded-lg sm:rounded-xl transition-all shrink-0 shadow-lg active:scale-90"
           >
-            <Plus size={24} strokeWidth={3} />
+            <Plus size={14} className="sm:w-5 sm:h-5 md:w-4 md:h-4 lg:w-6 lg:h-6" strokeWidth={3} />
           </button>
         </div>
         
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar bg-white/30 backdrop-blur-sm">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-8 justify-items-center">
+        <div className="flex-1 p-2 sm:p-4 md:p-2.5 lg:p-8 overflow-y-auto custom-scrollbar bg-white/30 backdrop-blur-[2px]">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(120px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(95px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 sm:gap-4 md:gap-2.5 lg:gap-10 justify-items-center">
             {qTasks.map(task => (
-              <PostIt key={task.id} task={task} onDelete={deleteTask} onMove={moveTask} />
+              <PostIt key={task.id} task={task} onDelete={deleteTask} onMove={moveTask} onEdit={editTask} />
             ))}
             {qTasks.length === 0 && !isHovered && (
-              <div className="col-span-full py-16 flex flex-col items-center justify-center opacity-20 pointer-events-none text-current">
-                 <div className="w-16 h-16 border-4 border-dashed border-current rounded-3xl mb-4 flex items-center justify-center text-4xl font-bold">+</div>
-                 <p className="text-xs font-black uppercase tracking-[0.3em]">Add Note</p>
+              <div className="col-span-full py-8 sm:py-16 flex flex-col items-center justify-center opacity-10 pointer-events-none text-current">
+                 <div className="w-8 h-8 sm:w-16 sm:h-16 md:w-12 md:h-12 lg:w-20 lg:h-20 border-2 sm:border-4 border-dashed border-current rounded-xl sm:rounded-3xl mb-2 sm:mb-4 flex items-center justify-center text-xl sm:text-4xl font-bold">+</div>
+                 <p className="text-[7px] sm:text-[10px] lg:text-xs font-black uppercase tracking-[0.3em]">Empty</p>
               </div>
             )}
           </div>
@@ -213,8 +216,8 @@ const App: React.FC = () => {
     <div className="h-screen flex flex-col bg-[#f8fafc]">
       <Header username={currentUser} onLogout={handleLogout} onExport={handleExport} onImport={handleImport} lastSaved={lastSaved} />
       
-      <main className="flex-1 flex flex-col px-4 py-4 md:px-6 md:py-6 overflow-hidden">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-[repeat(4,minmax(320px,1fr))] md:grid-rows-2 gap-4 md:gap-6 h-full">
+      <main className="flex-1 flex flex-col px-1.5 py-1.5 sm:px-4 sm:py-4 md:px-3 md:py-3 lg:px-6 lg:py-6 overflow-hidden">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-[repeat(4,minmax(150px,1fr))] md:grid-rows-2 gap-1.5 sm:gap-4 md:gap-2.5 lg:gap-6 h-full">
           {renderQuadrant('DO')}
           {renderQuadrant('DECIDE')}
           {renderQuadrant('DELEGATE')}
@@ -225,22 +228,22 @@ const App: React.FC = () => {
       {showAddFor && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden border border-white animate-in zoom-in-95 duration-200">
-            <div className={`p-8 ${QUADRANTS[showAddFor].color} text-white shadow-inner`}>
-              <h3 className="text-2xl font-black uppercase tracking-tight">New {QUADRANTS[showAddFor].title} Note</h3>
-              <p className="text-xs font-bold opacity-80 mt-1 uppercase tracking-widest">{QUADRANTS[showAddFor].label}</p>
+            <div className={`p-6 sm:p-8 ${QUADRANTS[showAddFor].color} text-white shadow-inner`}>
+              <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">New {QUADRANTS[showAddFor].title} Note</h3>
+              <p className="text-[10px] sm:text-xs font-bold opacity-80 mt-1 uppercase tracking-widest">{QUADRANTS[showAddFor].label}</p>
             </div>
-            <form onSubmit={addTask} className="p-8 bg-white">
+            <form onSubmit={addTask} className="p-6 sm:p-8 bg-white">
               <textarea
                 value={newTaskSubject}
                 onChange={(e) => setNewTaskSubject(e.target.value)}
-                className="w-full px-5 py-4 rounded-2xl border-2 border-slate-100 bg-slate-50 text-slate-900 focus:border-indigo-500 outline-none transition-all h-40 mb-6 font-bold text-lg"
+                className="w-full px-5 py-4 rounded-2xl border-2 border-slate-100 bg-slate-50 text-slate-900 focus:border-indigo-500 outline-none transition-all h-32 sm:h-40 mb-6 font-bold text-base sm:text-lg"
                 placeholder="What needs to be done?"
                 autoFocus
                 required
               />
               <div className="flex gap-4">
-                <button type="button" onClick={() => setShowAddFor(null)} className="flex-1 px-6 py-4 font-black text-slate-400 bg-slate-50 rounded-2xl uppercase tracking-widest text-xs hover:bg-slate-100 transition-colors">Cancel</button>
-                <button type="submit" className={`flex-1 px-6 py-4 font-black text-white rounded-2xl uppercase tracking-widest text-xs shadow-lg ${QUADRANTS[showAddFor].color}`}>Post Note</button>
+                <button type="button" onClick={() => setShowAddFor(null)} className="flex-1 px-4 py-3 sm:py-4 font-black text-slate-400 bg-slate-50 rounded-xl sm:rounded-2xl uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-100 transition-colors">Cancel</button>
+                <button type="submit" className={`flex-1 px-4 py-3 sm:py-4 font-black text-white rounded-xl sm:rounded-2xl uppercase tracking-widest text-[10px] sm:text-xs shadow-lg ${QUADRANTS[showAddFor].color}`}>Post Note</button>
               </div>
             </form>
           </div>
@@ -249,16 +252,16 @@ const App: React.FC = () => {
 
       {confirmConfig && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-8 bg-indigo-600 text-white flex items-center gap-4">
-              <HelpCircle size={32} />
-              <h3 className="text-xl font-black uppercase tracking-tight">{confirmConfig.title}</h3>
+          <div className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 sm:p-8 bg-indigo-600 text-white flex items-center gap-4">
+              <HelpCircle size={28} className="sm:w-8 sm:h-8" />
+              <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight">{confirmConfig.title}</h3>
             </div>
-            <div className="p-8">
-              <p className="text-slate-600 font-bold mb-8 leading-relaxed">{confirmConfig.message}</p>
+            <div className="p-6 sm:p-8">
+              <p className="text-slate-600 font-bold mb-8 leading-relaxed text-sm sm:text-base">{confirmConfig.message}</p>
               <div className="flex gap-4">
-                <button onClick={() => setConfirmConfig(null)} className="flex-1 px-6 py-4 font-black text-slate-400 bg-slate-100 rounded-2xl uppercase tracking-widest text-xs">Cancel</button>
-                <button onClick={confirmConfig.onConfirm} className="flex-1 px-6 py-4 font-black text-white bg-indigo-600 rounded-2xl uppercase tracking-widest text-xs">Confirm</button>
+                <button onClick={() => setConfirmConfig(null)} className="flex-1 px-4 py-3 sm:py-4 font-black text-slate-400 bg-slate-100 rounded-xl sm:rounded-2xl uppercase tracking-widest text-[10px] sm:text-xs">Cancel</button>
+                <button onClick={confirmConfig.onConfirm} className="flex-1 px-4 py-3 sm:py-4 font-black text-white bg-indigo-600 rounded-xl sm:rounded-2xl uppercase tracking-widest text-[10px] sm:text-xs">Confirm</button>
               </div>
             </div>
           </div>
@@ -268,24 +271,24 @@ const App: React.FC = () => {
       {alertConfig && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in duration-200">
-            <div className="p-8 bg-rose-500 text-white flex items-center gap-4">
-              <AlertCircle size={32} />
-              <h3 className="text-xl font-black uppercase tracking-tight">{alertConfig.title}</h3>
+            <div className="p-6 sm:p-8 bg-rose-500 text-white flex items-center gap-4">
+              <AlertCircle size={28} className="sm:w-8 sm:h-8" />
+              <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight">{alertConfig.title}</h3>
             </div>
-            <div className="p-8">
-              <p className="text-slate-600 font-bold mb-8 leading-relaxed">{alertConfig.message}</p>
-              <button onClick={() => setAlertConfig(null)} className="w-full px-6 py-4 font-black text-white bg-slate-800 rounded-2xl uppercase tracking-widest text-xs">Dismiss</button>
+            <div className="p-6 sm:p-8">
+              <p className="text-slate-600 font-bold mb-8 leading-relaxed text-sm sm:text-base">{alertConfig.message}</p>
+              <button onClick={() => setAlertConfig(null)} className="w-full px-4 py-3 sm:py-4 font-black text-white bg-slate-800 rounded-xl sm:rounded-2xl uppercase tracking-widest text-[10px] sm:text-xs">Dismiss</button>
             </div>
           </div>
         </div>
       )}
 
-      <footer className="px-6 py-2.5 text-center text-gray-400 text-[9px] font-black uppercase tracking-[0.3em] bg-white border-t">
+      <footer className="px-6 py-2 text-center text-gray-400 text-[7px] sm:text-[9px] font-black uppercase tracking-[0.3em] bg-white border-t shrink-0">
         &copy; {new Date().getFullYear()} Eisenhower Board • Workspace: {currentUser}
       </footer>
 
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }

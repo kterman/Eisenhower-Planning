@@ -22,47 +22,47 @@ const Header: React.FC<HeaderProps> = ({ username, onLogout, onExport, onImport,
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md shrink-0">
+    <header className="bg-white border-b border-gray-200 px-3 sm:px-6 py-2 sm:py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-base sm:text-xl shadow-md shrink-0">
             E
           </div>
           <div className="flex flex-col">
-            <h1 className="text-lg font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-none">
+            <h1 className="text-sm sm:text-lg lg:text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-none">
               Eisenhower Matrix
             </h1>
-            <div className="flex items-center gap-2 mt-1">
-               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Workspace: {username}</span>
+            <div className="flex items-center gap-2 mt-0.5 sm:mt-1">
+               <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest truncate max-w-[100px] sm:max-w-none">User: {username}</span>
             </div>
           </div>
         </div>
       </div>
       
-      <div className="flex items-center gap-2 sm:gap-4">
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100 text-emerald-600">
+      <div className="flex items-center gap-1.5 sm:gap-4">
+        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 bg-emerald-50 rounded-full border border-emerald-100 text-emerald-600 shrink-0">
           <ShieldCheck size={12} strokeWidth={3} />
-          <span className="text-[9px] font-black uppercase tracking-widest">Synced: {lastSaved}</span>
+          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Synced: {lastSaved}</span>
         </div>
 
-        <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+        <div className="h-6 w-px bg-gray-200 mx-1 hidden md:block"></div>
 
-        <div className="flex items-center bg-gray-50 rounded-lg p-1 border border-gray-100">
+        <div className="flex items-center bg-gray-50 rounded-lg p-0.5 sm:p-1 border border-gray-100">
           <button
             onClick={onExport}
-            className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-white rounded-md transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-tighter"
+            className="p-1.5 sm:p-2 text-gray-500 hover:text-indigo-600 hover:bg-white rounded-md transition-all flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-tighter"
             title="Export Board Data"
           >
-            <Download size={16} />
-            <span className="hidden md:inline">Export</span>
+            <Download size={14} className="sm:w-4 sm:h-4" />
+            <span className="hidden lg:inline">Export</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-white rounded-md transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-tighter"
+            className="p-1.5 sm:p-2 text-gray-500 hover:text-indigo-600 hover:bg-white rounded-md transition-all flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-tighter"
             title="Import Board Data"
           >
-            <Upload size={16} />
-            <span className="hidden md:inline">Import</span>
+            <Upload size={14} className="sm:w-4 sm:h-4" />
+            <span className="hidden lg:inline">Import</span>
           </button>
           <input
             type="file"
@@ -75,9 +75,9 @@ const Header: React.FC<HeaderProps> = ({ username, onLogout, onExport, onImport,
 
         <button
           onClick={onLogout}
-          className="flex items-center gap-2 px-3 py-2 text-xs font-black text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all uppercase tracking-widest"
+          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-black text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all uppercase tracking-widest"
         >
-          <LogOut size={16} />
+          <LogOut size={14} className="sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Logout</span>
         </button>
       </div>
