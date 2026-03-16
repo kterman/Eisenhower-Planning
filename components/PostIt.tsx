@@ -66,6 +66,8 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
     if (isEditing) { e.preventDefault(); return; }
     e.dataTransfer.setData('taskId', task.id);
     e.dataTransfer.effectAllowed = 'move';
+    setIsHovered(false);
+    setHoverRect(null);
     setTimeout(() => setIsDragging(true), 0);
   };
 
