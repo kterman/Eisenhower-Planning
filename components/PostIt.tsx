@@ -100,7 +100,7 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
       className={`group relative bg-[#fff9c4] p-2 sm:p-4 md:p-2.5 lg:p-5 w-full max-w-[90px] sm:max-w-[140px] md:max-w-[100px] lg:max-w-[180px] aspect-square transition-all duration-300 post-it-shadow border-b-[1px] md:border-b-2 border-r-[1px] md:border-r-2 border-[#f0e68c] flex flex-col active:cursor-grabbing hover:z-50 ${
         isDragOver ? 'border-l-4 border-l-indigo-500 scale-105' : ''
       } ${
-        isEditing ? 'z-[60] scale-105 shadow-2xl cursor-default rotate-0' : 'cursor-grab hover:rotate-0 hover:scale-[1.8] lg:hover:scale-[2.2] hover:-translate-y-2 hover:shadow-2xl hover:z-[999]'
+        isEditing ? 'z-[60] scale-105 shadow-2xl cursor-default rotate-0' : 'cursor-grab hover:rotate-0 hover:scale-[3] hover:-translate-y-4 hover:shadow-2xl hover:z-[999]'
       } ${
         isDragging
           ? 'opacity-40 scale-90 rotate-0'
