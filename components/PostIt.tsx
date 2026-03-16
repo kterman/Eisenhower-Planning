@@ -25,6 +25,7 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const portalTextareaRef = useRef<HTMLTextAreaElement>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const quadrants: QuadrantType[] = ['DO', 'DECIDE', 'DELEGATE', 'DELETE'];
 
@@ -92,14 +93,22 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
   const handleMouseEnter = () => {
     if (!isEditing) {
       cancelHide();
-      if (noteRef.current) {
-        setHoverRect(noteRef.current.getBoundingClientRect());
-        setIsHovered(true);
-      }
+      showTimeoutRef.current = setTimeout(() => {
+        if (noteRef.current) {
+          setHoverRect(noteRef.current.getBoundingClientRect());
+          setIsHovered(true);
+        }
+      }, 400);
     }
   };
 
-  const handleMouseLeave = () => scheduleHide();
+  const handleMouseLeave = () => {
+    if (showTimeoutRef.current) {
+      clearTimeout(showTimeoutRef.current);
+      showTimeoutRef.current = null;
+    }
+    scheduleHide();
+  };
 
   const handleSaveEdit = () => {
     const trimmed = editedSubject.trim();
