@@ -22,10 +22,10 @@ const Header: React.FC<HeaderProps> = ({ username, onLogout, onExport, onImport,
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-3 sm:px-6 py-2 sm:py-3 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+    <header className="bg-white border-b border-gray-200 px-2 sm:px-4 py-1 sm:py-1.5 flex justify-between items-center sticky top-0 z-50 shadow-sm">
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-base sm:text-xl shadow-md shrink-0">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-md shrink-0">
             E
           </div>
           <div className="flex flex-col">

@@ -190,7 +190,7 @@ const App: React.FC = () => {
           isHovered ? 'scale-[1.01] border-indigo-500 shadow-xl ring-4 ring-indigo-500/10' : 'border-transparent shadow-sm'
         } ${q.bg}`}
       >
-        <div className={`px-2.5 sm:px-4 md:px-3 lg:px-6 py-2 sm:py-3 md:py-2.5 lg:py-4 flex items-center justify-between text-white ${q.color} ${isHovered ? 'brightness-110' : ''}`}>
+        <div className={`px-2 sm:px-3 py-1 sm:py-1.5 flex items-center justify-between text-white ${q.color} ${isHovered ? 'brightness-110' : ''}`}>
           <div className="flex items-center gap-1.5 sm:gap-3 md:gap-2 lg:gap-4 overflow-hidden">
             <h3 className="font-black text-base sm:text-xl md:text-lg lg:text-3xl uppercase tracking-tighter leading-none shrink-0 drop-shadow-sm">{q.title}</h3>
             <div className="h-4 sm:h-6 md:h-5 lg:h-8 w-0.5 bg-white/30 shrink-0"></div>
@@ -206,7 +206,7 @@ const App: React.FC = () => {
           </button>
         </div>
         
-        <div className="flex-1 p-1.5 sm:p-2.5 md:p-2 lg:p-4 overflow-y-auto custom-scrollbar bg-white/30 backdrop-blur-[2px]">
+        <div className="flex-1 p-1 sm:p-2 lg:p-3 overflow-y-auto custom-scrollbar bg-white/30 backdrop-blur-[2px]">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(60px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(80px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(65px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(105px,1fr))] gap-1.5 sm:gap-2.5 md:gap-2 lg:gap-5 justify-items-center">
             {qTasks.map(task => (
               <PostIt key={task.id} task={task} onDelete={deleteTask} onMove={moveTask} onEdit={editTask} onReorder={reorderTask} />
@@ -227,8 +227,8 @@ const App: React.FC = () => {
     <div className="h-screen flex flex-col bg-[#f8fafc]">
       <Header username={currentUser} onLogout={handleLogout} onExport={handleExport} onImport={handleImport} lastSaved={lastSaved} />
       
-      <main className="flex-1 flex flex-col px-1 py-1 sm:px-2 sm:py-2 md:px-2 md:py-2 lg:px-3 lg:py-3 overflow-hidden">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-[repeat(4,minmax(150px,1fr))] md:grid-rows-2 gap-1 sm:gap-2 md:gap-1.5 lg:gap-3 h-full">
+      <main className="flex-1 flex flex-col p-0.5 overflow-hidden">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-[repeat(4,minmax(150px,1fr))] md:grid-rows-2 gap-0.5 h-full">
           {renderQuadrant('DO')}
           {renderQuadrant('DECIDE')}
           {renderQuadrant('DELEGATE')}
