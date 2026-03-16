@@ -207,7 +207,7 @@ const App: React.FC = () => {
         </div>
         
         <div className="flex-1 p-2 sm:p-4 md:p-2.5 lg:p-8 overflow-y-auto custom-scrollbar bg-white/30 backdrop-blur-[2px]">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(120px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(95px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2 sm:gap-4 md:gap-2.5 lg:gap-10 justify-items-center">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(60px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(80px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(65px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(105px,1fr))] gap-1.5 sm:gap-2.5 md:gap-2 lg:gap-5 justify-items-center">
             {qTasks.map(task => (
               <PostIt key={task.id} task={task} onDelete={deleteTask} onMove={moveTask} onEdit={editTask} onReorder={reorderTask} />
             ))}
