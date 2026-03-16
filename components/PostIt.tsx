@@ -18,17 +18,19 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
   const [isDragOver, setIsDragOver] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingInPortal, setIsEditingInPortal] = useState(false);
   const [editedSubject, setEditedSubject] = useState(task.subject);
   const [hoverRect, setHoverRect] = useState<DOMRect | null>(null);
   const noteRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const portalTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const quadrants: QuadrantType[] = ['DO', 'DECIDE', 'DELEGATE', 'DELETE'];
 
-  // Generate a consistent organic rotation based on the task ID
   const rotation = useMemo(() => {
     const hash = task.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return (hash % 6) - 3; // Returns -3 to 3 degrees
+    return (hash % 6) - 3;
   }, [task.id]);
 
   useEffect(() => {
@@ -38,19 +40,36 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
     }
   }, [isEditing, task.subject.length]);
 
-  const handleDragStart = (e: React.DragEvent) => {
-    if (isEditing) {
-      e.preventDefault();
-      return;
+  useEffect(() => {
+    if (isEditingInPortal && portalTextareaRef.current) {
+      portalTextareaRef.current.focus();
+      portalTextareaRef.current.setSelectionRange(editedSubject.length, editedSubject.length);
     }
+  }, [isEditingInPortal]);
+
+  const scheduleHide = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+      setIsEditingInPortal(false);
+      setHoverRect(null);
+    }, 80);
+  };
+
+  const cancelHide = () => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent) => {
+    if (isEditing) { e.preventDefault(); return; }
     e.dataTransfer.setData('taskId', task.id);
     e.dataTransfer.effectAllowed = 'move';
     setTimeout(() => setIsDragging(true), 0);
   };
 
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
+  const handleDragEnd = () => setIsDragging(false);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -58,50 +77,117 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
     setIsDragOver(true);
   };
 
-  const handleDragOverLeave = () => {
-    setIsDragOver(false);
-  };
+  const handleDragOverLeave = () => setIsDragOver(false);
 
   const handleDropOnNote = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
     const draggedId = e.dataTransfer.getData('taskId');
-    if (draggedId && draggedId !== task.id) {
-      onReorder(draggedId, task.id);
-    }
+    if (draggedId && draggedId !== task.id) onReorder(draggedId, task.id);
   };
 
   const handleMouseEnter = () => {
-    if (!isEditing && noteRef.current) {
-      setHoverRect(noteRef.current.getBoundingClientRect());
-      setIsHovered(true);
+    if (!isEditing) {
+      cancelHide();
+      if (noteRef.current) {
+        setHoverRect(noteRef.current.getBoundingClientRect());
+        setIsHovered(true);
+      }
     }
   };
 
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setHoverRect(null);
-  };
+  const handleMouseLeave = () => scheduleHide();
 
   const handleSaveEdit = () => {
     const trimmed = editedSubject.trim();
-    if (trimmed && trimmed !== task.subject) {
-      onEdit(task.id, trimmed);
-    } else {
-      setEditedSubject(task.subject);
-    }
+    if (trimmed && trimmed !== task.subject) onEdit(task.id, trimmed);
+    else setEditedSubject(task.subject);
     setIsEditing(false);
   };
 
+  const handleSavePortalEdit = () => {
+    const trimmed = editedSubject.trim();
+    if (trimmed && trimmed !== task.subject) onEdit(task.id, trimmed);
+    else setEditedSubject(task.subject);
+    setIsEditingInPortal(false);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSaveEdit();
-    } else if (e.key === 'Escape') {
-      setEditedSubject(task.subject);
-      setIsEditing(false);
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveEdit(); }
+    else if (e.key === 'Escape') { setEditedSubject(task.subject); setIsEditing(false); }
+  };
+
+  const handlePortalKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSavePortalEdit(); }
+    else if (e.key === 'Escape') { setEditedSubject(task.subject); setIsEditingInPortal(false); }
+  };
+
+  const renderPortal = () => {
+    if (!isHovered || !hoverRect) return null;
+    const scale = 3;
+    const w = hoverRect.width * scale;
+    const h = hoverRect.height * scale;
+    const cx = hoverRect.left + hoverRect.width / 2;
+    const cy = hoverRect.top + hoverRect.height / 2;
+    const margin = 8;
+    const left = Math.max(margin, Math.min(cx - w / 2, window.innerWidth - w - margin));
+    const top = Math.max(margin, Math.min(cy - h / 2, window.innerHeight - h - margin));
+
+    return createPortal(
+      <div
+        onMouseEnter={cancelHide}
+        onMouseLeave={scheduleHide}
+        style={{
+          position: 'fixed', top, left, width: w, height: h,
+          zIndex: 9999,
+          backgroundColor: '#fff9c4',
+          boxShadow: '4px 4px 24px rgba(0,0,0,0.25)',
+          borderBottom: '2px solid #f0e68c',
+          borderRight: '2px solid #f0e68c',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: '2px',
+          cursor: isEditingInPortal ? 'default' : 'text',
+        }}
+        onClick={() => { if (!isEditingInPortal) setIsEditingInPortal(true); }}
+      >
+        {isEditingInPortal ? (
+          <>
+            <textarea
+              ref={portalTextareaRef}
+              value={editedSubject}
+              onChange={(e) => setEditedSubject(e.target.value)}
+              onBlur={handleSavePortalEdit}
+              onKeyDown={handlePortalKeyDown}
+              style={{
+                flex: 1, width: '100%', background: 'transparent',
+                border: 'none', outline: 'none', resize: 'none',
+                fontSize: '18px', fontWeight: 700, color: '#1f2937',
+                lineHeight: 1.4, fontFamily: 'Inter, sans-serif',
+              }}
+            />
+            <div style={{
+              fontSize: '11px', fontWeight: 900, color: '#6366f1',
+              textTransform: 'uppercase', letterSpacing: '0.05em',
+              display: 'flex', justifyContent: 'space-between', marginTop: '8px',
+            }}>
+              <span>Enter: gem</span><span>Esc: annuller</span>
+            </div>
+          </>
+        ) : (
+          <p style={{
+            flex: 1, fontSize: '18px', fontWeight: 700, color: '#1f2937',
+            lineHeight: 1.4, wordBreak: 'break-word', margin: 0,
+            fontFamily: 'Inter, sans-serif',
+          }}>
+            {task.subject}
+          </p>
+        )}
+      </div>,
+      document.body
+    );
   };
 
   return (
@@ -126,13 +212,8 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
         }}
         className={`group relative bg-[#fff9c4] p-2 sm:p-4 md:p-2.5 lg:p-5 w-full max-w-[90px] sm:max-w-[140px] md:max-w-[100px] lg:max-w-[180px] aspect-square post-it-shadow border-b-[1px] md:border-b-2 border-r-[1px] md:border-r-2 border-[#f0e68c] flex flex-col ${
           isDragOver ? 'border-l-4 border-l-indigo-500' : ''
-        } ${
-          isEditing ? 'z-[60] shadow-2xl cursor-default' : 'cursor-grab'
-        } ${
-          isDragging ? 'opacity-40' : ''
-        }`}
+        } ${isEditing ? 'z-[60] shadow-2xl cursor-default' : 'cursor-grab'} ${isDragging ? 'opacity-40' : ''}`}
       >
-        {/* Decorative "Tape" or "Grip" area */}
         {!isEditing && (
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-4 sm:w-8 h-1.5 sm:h-3 bg-white/30 backdrop-blur-sm rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
         )}
@@ -150,8 +231,8 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
                 placeholder="Task..."
               />
               <div className="mt-0.5 flex justify-between items-center text-[6px] sm:text-[8px] font-black uppercase tracking-tighter text-indigo-600/50 shrink-0">
-                 <span>Save: Enter</span>
-                 <span className="hidden sm:inline">Esc: Cancel</span>
+                <span>Save: Enter</span>
+                <span className="hidden sm:inline">Esc: Cancel</span>
               </div>
             </div>
           ) : (
@@ -191,10 +272,7 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
               {quadrants.map(q => q !== task.quadrant && (
                 <button
                   key={q}
-                  onClick={() => {
-                    onMove(task.id, q);
-                    setShowMove(false);
-                  }}
+                  onClick={() => { onMove(task.id, q); setShowMove(false); }}
                   className="w-full text-[6px] sm:text-[9px] py-0.5 sm:py-1 px-1 bg-white text-gray-900 hover:bg-indigo-600 hover:text-white rounded border border-yellow-200 font-black transition-all shadow-sm active:scale-95 truncate"
                 >
                   {q}
@@ -211,52 +289,7 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
         )}
       </div>
 
-      {isHovered && hoverRect && createPortal(
-        (() => {
-          const scale = 3;
-          const w = hoverRect.width * scale;
-          const h = hoverRect.height * scale;
-          const cx = hoverRect.left + hoverRect.width / 2;
-          const cy = hoverRect.top + hoverRect.height / 2;
-          const margin = 8;
-          const left = Math.max(margin, Math.min(cx - w / 2, window.innerWidth - w - margin));
-          const top = Math.max(margin, Math.min(cy - h / 2, window.innerHeight - h - margin));
-          return (
-            <div style={{
-              position: 'fixed',
-              top,
-              left,
-              width: w,
-              height: h,
-              zIndex: 9999,
-              pointerEvents: 'none',
-              backgroundColor: '#fff9c4',
-              boxShadow: '4px 4px 24px rgba(0,0,0,0.25)',
-              borderBottom: '2px solid #f0e68c',
-              borderRight: '2px solid #f0e68c',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '2px',
-            }}>
-              <p style={{
-                fontSize: '18px',
-                fontWeight: 700,
-                color: '#1f2937',
-                lineHeight: 1.4,
-                wordBreak: 'break-word',
-                margin: 0,
-                fontFamily: 'Inter, sans-serif',
-                textAlign: 'center',
-              }}>
-                {task.subject}
-              </p>
-            </div>
-          );
-        })(),
-        document.body
-      )}
+      {renderPortal()}
     </>
   );
 };
