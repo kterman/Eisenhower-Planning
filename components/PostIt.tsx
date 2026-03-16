@@ -212,42 +212,49 @@ const PostIt: React.FC<PostItProps> = ({ task, onDelete, onMove, onEdit, onReord
       </div>
 
       {isHovered && hoverRect && createPortal(
-        <div
-          style={{
-            position: 'fixed',
-            top: hoverRect.top,
-            left: hoverRect.left,
-            width: hoverRect.width,
-            height: hoverRect.height,
-            transform: 'scale(3)',
-            transformOrigin: 'center center',
-            zIndex: 9999,
-            pointerEvents: 'none',
-            backgroundColor: '#fff9c4',
-            boxShadow: '4px 4px 24px rgba(0,0,0,0.25)',
-            borderBottom: '2px solid #f0e68c',
-            borderRight: '2px solid #f0e68c',
-            padding: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '2px',
-            transition: 'transform 0.2s ease',
-          }}
-        >
-          <p style={{
-            fontSize: '13px',
-            fontWeight: 700,
-            color: '#1f2937',
-            lineHeight: 1.4,
-            wordBreak: 'break-word',
-            margin: 0,
-            fontFamily: 'Inter, sans-serif',
-            textAlign: 'center',
-          }}>
-            {task.subject}
-          </p>
-        </div>,
+        (() => {
+          const scale = 3;
+          const w = hoverRect.width * scale;
+          const h = hoverRect.height * scale;
+          const cx = hoverRect.left + hoverRect.width / 2;
+          const cy = hoverRect.top + hoverRect.height / 2;
+          const margin = 8;
+          const left = Math.max(margin, Math.min(cx - w / 2, window.innerWidth - w - margin));
+          const top = Math.max(margin, Math.min(cy - h / 2, window.innerHeight - h - margin));
+          return (
+            <div style={{
+              position: 'fixed',
+              top,
+              left,
+              width: w,
+              height: h,
+              zIndex: 9999,
+              pointerEvents: 'none',
+              backgroundColor: '#fff9c4',
+              boxShadow: '4px 4px 24px rgba(0,0,0,0.25)',
+              borderBottom: '2px solid #f0e68c',
+              borderRight: '2px solid #f0e68c',
+              padding: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '2px',
+            }}>
+              <p style={{
+                fontSize: '18px',
+                fontWeight: 700,
+                color: '#1f2937',
+                lineHeight: 1.4,
+                wordBreak: 'break-word',
+                margin: 0,
+                fontFamily: 'Inter, sans-serif',
+                textAlign: 'center',
+              }}>
+                {task.subject}
+              </p>
+            </div>
+          );
+        })(),
         document.body
       )}
     </>
